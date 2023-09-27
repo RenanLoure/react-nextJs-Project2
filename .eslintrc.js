@@ -1,4 +1,4 @@
-odule.exports = {
+module.exports = {
   env: {
     browser: true,
     es2021: true,
@@ -32,4 +32,9 @@ odule.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off',
   },
+
+  requireConfigFile: false,
+  babelOptions: {
+  presets: ["@babel/preset-react"]
+}
 };
