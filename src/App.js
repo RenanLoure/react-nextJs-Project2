@@ -1,54 +1,46 @@
-import { useReducer } from 'react';
-import './App.css';
+import { useEffect, useState } from 'react';
 
-const globalState = {
-  title: 'O título que contexto',
-  body: 'O body do contexto',
-  counter: 0,
+const useFetch = (url, options) => {
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    console.log('EFFECT', new Date().toLocaleString());
+
+    setLoading(true);
+
+    const fetchData = async () => {
+      await new Promise((r) => setTimeout(r, 3000));
+
+      try {
+        const response = await fetch(url, options);
+        const jsonResult = await response.json();
+        setResult(jsonResult);
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+        throw e;
+      }
+    };
+
+    fetchData();
+  }, [url, options]);
+
+  return [result, loading];
 };
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'muda': {
-      console.log('Chamou muda com', action.payload);
-      return { ...state, title: action.payload };
-    }
-    case 'inverter': {
-      console.log('Chamou inverter');
-      const { title } = state;
-      return { ...state, title: title.split('').reverse().join('') };
-    }
+export const Home = () => {
+  const [result, loading] = useFetch(
+    'https://jsonplaceholder.typicode.com/posts',
+  );
+
+  if (loading) {
+    return <p>Loading...</p>;
   }
 
-  console.log('NENHUMA ACTION ENCONTRADA...');
-  return { ...state };
+  if (!loading && result) {
+    console.log(result);
+  }
+
+  return <h1>Oi</h1>;
 };
-
-function App() {
-  const [state, dispatch] = useReducer(reducer, globalState);
-  const { counter, title, body } = state;
-
-  return (
-    <div>
-      <h1>
-        {title} {counter}
-      </h1>
-      <button
-        onClick={() =>
-          dispatch({
-            type: 'muda',
-            payload: new Date().toLocaleString('pt-BR'),
-          })
-        }
-      >
-        Click
-      </button>
-      <button onClick={() => dispatch({ type: 'inverter' })}>Invert</button>
-      <button onClick={() => dispatch({ type: 'QUALQUERCOiSA' })}>
-        SEM ACTION
-      </button>
-    </div>
-  );
-}
-
-export default App;
