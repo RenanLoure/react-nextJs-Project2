@@ -1,46 +1,32 @@
-import { useEffect, useState } from 'react';
-
-const useFetch = (url, options) => {
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    console.log('EFFECT', new Date().toLocaleString());
-
-    setLoading(true);
-
-    const fetchData = async () => {
-      await new Promise((r) => setTimeout(r, 3000));
-
-      try {
-        const response = await fetch(url, options);
-        const jsonResult = await response.json();
-        setResult(jsonResult);
-        setLoading(false);
-      } catch (e) {
-        setLoading(false);
-        throw e;
-      }
-    };
-
-    fetchData();
-  }, [url, options]);
-
-  return [result, loading];
-};
+import { useLayoutEffect, useRef, useState } from 'react';
 
 export const Home = () => {
-  const [result, loading] = useFetch(
-    'https://jsonplaceholder.typicode.com/posts',
+  const [counted, setCounted] = useState([0, 1, 2, 3, 4]);
+  const divRef = useRef();
+
+  useLayoutEffect(() => {
+    const now = Date.now();
+    while (Date.now() < now + 1500);
+    divRef.current.scrollTop = divRef.current.scrollHeight;
+  });
+
+  const handleClick = () => {
+    setCounted((c) => [...c, +c.slice(-1) + 1]);
+  };
+
+  return (
+    <>
+      <button onClick={handleClick}>Count {counted.slice(-1)}</button>
+      <div
+        ref={divRef}
+        style={{ height: '100px', width: '100px', overflowY: 'scroll' }}
+      >
+        {counted.map((c) => {
+          return <p key={`c-${c}`}>{c}</p>;
+        })}
+      </div>
+    </>
   );
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (!loading && result) {
-    console.log(result);
-  }
-
-  return <h1>Oi</h1>;
 };
+
+export default Home;
